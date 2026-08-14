@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Little Box of Goodies - Free Edition</title>
+    <style>
+        :root {
+            --bg-color: #faf9f6;
+            --text-color: #1a1a1a;
+            --border-color: #e0e0e0;
+            --accent-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        /* Main Container resembling a shipping label */
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #ffffff;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 1.2rem;
+            font-weight: normal;
+            margin: 0 0 5px 0;
+            text-align: left;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        .asterisk-divider {
+            text-align: center;
+            margin: 30px 0 20px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Form Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .input-row label {
+            width: 60px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .input-row input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            color: var(--text-color);
+        }
+
+        /* Grid for Items */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .grid button:hover {
+            border-color: var(--text-color);
+        }
+
+        /* Cart Area */
+        #cart-summary {
+            margin-top: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 80px;
+            background: #fafafa;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .remove-btn {
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        
+        .remove-btn:hover {
+            color: red;
+        }
+
+        /* Main Call to Action */
+        .btn-main {
+            width: 100%;
+            background: var(--text-color);
+            color: #ffffff;
+            padding: 16px;
+            font-size: 0.95rem;
+            margin-top: 30px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .btn-main:hover {
+            background: #333;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Link Container */
+        #share-link-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid var(--text-color);
+            background: #fff;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        #share-link-container input {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            text-align: center;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            outline: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(250, 249, 246, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--text-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            font-weight: normal;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-content textarea, .modal-content input {
+            width: 100%;
+            padding: 10px;
+            font-family: inherit;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            outline: none;
+        }
+        
+        .modal-content textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .modal-actions { display: flex; gap: 10px; }
+        .modal-actions button {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--text-color);
+            font-family: inherit;
+            cursor: pointer;
+        }
+        
+        .modal-actions button.primary {
+            background: var(--text-color);
+            color: #fff;
+        }
+
+        /* Viewer Styles */
+        #viewer-view { display: none; }
+        .fake-barcode {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            text-align: center;
+        }
+        
+        .tap-to-open {
+            text-align: center;
+            margin: 60px 0;
+            cursor: pointer;
+        }
+        
+        .tap-to-open .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .goodies-list { display: none; margin-top: 30px; }
+        
+        .goodie-item {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 4px;
+        }
+        
+        .goodie-item .type {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+        
+        .goodie-item img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--border-color);
+            padding: 5px;
+        }
+        
+        .goodie-item a {
+            color: var(--text-color);
+            word-break: break-all;
+        }
+
+        .create-own {
+            display: block;
+            text-align: center;
+            margin-top: 50px;
+            color: #888;
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Builder View -->
+<div class="container" id="builder-view">
+    <h1>digital care package</h1>
+    <div class="subtitle">a little box of goodies — est. for sending a little care</div>
+    
+    <div class="input-group">
+        <div class="input-row">
+            <label>to /</label>
+            <input type="text" id="to-input" placeholder="their name">
+        </div>
+        <div class="input-row">
+            <label>from /</label>
+            <input type="text" id="from-input" placeholder="your name">
+        </div>
+    </div>
+
+    <div class="asterisk-divider">*** select items to tuck ***</div>
+    
+    <div class="grid">
+        <button onclick="openModal('Note')">+ Note</button>
+        <button onclick="openModal('Photo')">+ Photo</button>
+        <button onclick="openModal('Song')">+ Song</button>
+        <button onclick="openModal('Video')">+ Video</button>
+        <button onclick="openModal('Gift')">+ Gift</button>
+        <button onclick="openModal('Voice')">+ Voice</button>
+        <button onclick="openModal('Location')">+ Location</button>
+        <button onclick="openModal('Link')">+ Link</button>
+    </div>
+
+    <div class="asterisk-divider">*** in cart ***</div>
+    
+    <div id="cart-summary">
+        <div style="color:#999; font-style:italic; text-align:center; margin-top:20px;">nothing packed yet.</div>
+    </div>
+
+    <button class="btn-main" onclick="generateLink()">*** pack · then get your link ***</button>
+
+    <div id="share-link-container">
+        <strong>payment bypassed — package ready</strong>
+        <p style="font-size: 0.85rem; color: #666; margin: 10px 0;">Copy and save this link now. Then text it, email it, or share it however you like:</p>
+        <input type="text" id="share-input" readonly>
+    </div>
+
+    <div class="footer-note">have a nice day :)</div>
+</div>
+
+<!-- Receiver View -->
+<div class="container" id="viewer-view">
+    <div class="fake-barcode">||| || | ||| || || | | ||</div>
+    <h1 class="center-text">digital care package</h1>
+    <div class="subtitle center-text">delivered with care and love</div>
+    
+    <div style="margin: 30px 0; border: 1px solid var(--border-color); padding: 15px; background: #fafafa;">
+        <div style="margin-bottom: 10px;"><strong>to /</strong> <span id="v-to"></span></div>
+        <div><strong>from /</strong> <span id="v-from"></span></div>
+    </div>
+
+    <div class="tap-to-open" id="box-anim" onclick="openBox()">
+        <div class="icon">📦</div>
+        <div>tap to open</div>
+    </div>
+
+    <div class="goodies-list" id="goodies-list">
+        <!-- Content gets injected here -->
+    </div>
+
+    <button class="create-own" onclick="makeMyOwn()">made with a little box of goodies — make your own</button>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h3 id="modal-title">add item</h3>
+        <div id="modal-input-area"></div>
+        <div class="modal-actions">
+            <button onclick="closeModal()">Cancel</button>
+            <button class="primary" onclick="saveItem()">Tuck Inside</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let packageData = { to: '', from: '', items: [] };
+    let currentItemType = '';
+
+    function openModal(type) {
+        currentItemType = type;
+        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('modal-title').innerText = '+ ' + type.toLowerCase();
+        
+        const inputArea = document.getElementById('modal-input-area');
+        
+        if (type === 'Note') {
+            inputArea.innerHTML = '<textarea id="item-input" placeholder="write your message here..."></textarea>';
+        } else if (type === 'Photo') {
+            inputArea.innerHTML = '<input type="text" id="item-input" placeholder="paste an image URL (https://...)">';
+        } else {
+            inputArea.innerHTML = `<input type="text" id="item-input" placeholder="paste the ${type.toLowerCase()} link here...">`;
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function saveItem() {
+        const val = document.getElementById('item-input').value.trim();
+        if (val) {
+            packageData.items.push({ type: currentItemType, content: val });
+            renderCart();
+        }
+        closeModal();
+    }
+
+    function renderCart() {
+        const cart = document.getElementById('cart-summary');
+        if (packageData.items.length === 0) {
+            cart.innerHTML = '<div style="color:#999; font-style:italic; text-align:center; margin-top:20px;">nothing packed yet.</div>';
+            return;
+        }
+        
+        cart.innerHTML = '';
+        packageData.items.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'cart-item';
+            row.innerHTML = `<span>+ ${item.type}</span> <button class="remove-btn" onclick="removeItem(${index})">✕</button>`;
+            cart.appendChild(row);
+        });
+    }
+
+    function removeItem(index) {
+        packageData.items.splice(index, 1);
+        renderCart();
+    }
+
+    function generateLink() {
+        if (packageData.items.length === 0) {
+            alert("Please tuck at least one item inside your package!");
+            return;
+        }
+        
+        packageData.to = document.getElementById('to-input').value || 'someone special';
+        packageData.from = document.getElementById('from-input').value || 'a friend';
+        
+        // Encode payload
+        const payload = btoa(encodeURIComponent(JSON.stringify(packageData)));
+        const shareUrl = window.location.origin + window.location.pathname + '#' + payload;
+        
+        const shareContainer = document.getElementById('share-link-container');
+        const shareInput = document.getElementById('share-input');
+        
+        shareContainer.style.display = 'block';
+        shareInput.value = shareUrl;
+        
+        shareInput.select();
+        document.execCommand('copy');
+        
+        // Change button text briefly
+        const btn = document.querySelector('.btn-main');
+        const originalText = btn.innerText;
+        btn.innerText = "*** LINK COPIED TO CLIPBOARD ***";
+        setTimeout(() => { btn.innerText = originalText; }, 3000);
+    }
+
+    function checkHash() {
+        if (window.location.hash.length > 1) {
+            try {
+                const payload = window.location.hash.substring(1);
+                const decoded = JSON.parse(decodeURIComponent(atob(payload)));
+                showViewer(decoded);
+            } catch(e) {
+                console.error("Invalid package link");
+            }
+        }
+    }
+
+    function showViewer(data) {
+        document.getElementById('builder-view').style.display = 'none';
+        document.getElementById('viewer-view').style.display = 'block';
+        
+        document.getElementById('v-to').innerText = data.to;
+        document.getElementById('v-from').innerText = data.from;
+        
+        window.viewerData = data;
+    }
+
+    function openBox() {
+        document.getElementById('box-anim').style.display = 'none';
+        
+        const list = document.getElementById('goodies-list');
+        list.style.display = 'block';
+        
+        window.viewerData.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'goodie-item';
+            
+            let contentHtml = '';
+            if (item.type === 'Note') {
+                contentHtml = item.content.replace(/\n/g, '<br>');
+            } else if (item.type === 'Photo') {
+                contentHtml = `<img src="${item.content}" alt="Included photo" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'">`;
+            } else {
+                contentHtml = `<a href="${item.content}" target="_blank">open ${item.type.toLowerCase()} link →</a>`;
+            }
+            
+            div.innerHTML = `<div class="type">${item.type}</div><div>${contentHtml}</div>`;
+            list.appendChild(div);
+        });
+    }
+
+    function makeMyOwn() {
+        window.location.hash = '';
+        window.location.reload();
+    }
+
+    window.onload = checkHash;
+</script>
+</body>
+</html>
