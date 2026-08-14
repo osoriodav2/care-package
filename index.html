@@ -6,9 +6,10 @@
     <title>A Little Box of Goodies - Free Edition</title>
     <style>
         :root {
-            --bg-color: #faf9f6;
-            --text-color: #1a1a1a;
-            --border-color: #e0e0e0;
+            --bg-color: #f2ebd9; /* A slightly darker warm beige for the outer background */
+            --box-bg: #fcf9f2; /* A soft, warm cream for the main boxes */
+            --text-color: #38342e; /* Softened dark brown/grey so it's not a harsh black */
+            --border-color: #dcd5c7; /* Warmed up border color */
             --accent-color: #000000;
         }
 
@@ -30,9 +31,9 @@
 
         /* Main Container resembling a shipping label */
         .container {
-            max-width: 500px;
+            max-width: 800px;
             width: 100%;
-            background: #ffffff;
+            background: var(--box-bg); /* Changed from #ffffff */
             padding: 40px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
@@ -187,7 +188,7 @@
             margin-top: 20px;
             padding: 20px;
             border: 1px solid var(--text-color);
-            background: #fff;
+            background: var(--box-bg); /* Changed from #fff */
             text-align: center;
             border-radius: 4px;
         }
@@ -204,21 +205,22 @@
         }
 
         /* Modal */
+        /* Modal */
         .modal {
-            display: none;
+            display: none; /* This line is crucial! It hides the popup on load */
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(250, 249, 246, 0.9);
+            background: rgba(242, 235, 217, 0.9); /* Warmed up to match the cream theme */
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
 
         .modal-content {
-            background: #fff;
+            background: var(--box-bg); 
             padding: 30px;
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             border: 1px solid var(--text-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
@@ -237,6 +239,8 @@
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
             outline: none;
+            background: var(--box-bg);
+            color: var(--text-color);
         }
         
         .modal-content textarea {
@@ -252,13 +256,13 @@
             border: 1px solid var(--text-color);
             font-family: inherit;
             cursor: pointer;
+            color: var(--text-color);
         }
         
         .modal-actions button.primary {
             background: var(--text-color);
-            color: #fff;
+            color: var(--box-bg);
         }
-
         /* Viewer Styles */
         #viewer-view { display: none; }
         .fake-barcode {
@@ -293,7 +297,7 @@
             border: 1px solid var(--border-color);
             padding: 20px;
             margin-bottom: 20px;
-            background: #fff;
+            background: var(--box-bg); /* Changed from #fff */
             border-radius: 4px;
         }
         
@@ -311,6 +315,9 @@
             height: auto;
             border: 1px solid var(--border-color);
             padding: 5px;
+            /* Added lines to center the image */
+            display: block;
+            margin: 0 auto;
         }
         
         .goodie-item a {
@@ -372,7 +379,7 @@
     <button class="btn-main" onclick="generateLink()">*** pack · then get your link ***</button>
 
     <div id="share-link-container">
-        <strong>payment bypassed — package ready</strong>
+        <strong>package ready</strong>
         <p style="font-size: 0.85rem; color: #666; margin: 10px 0;">Copy and save this link now. Then text it, email it, or share it however you like:</p>
         <input type="text" id="share-input" readonly>
     </div>
@@ -429,7 +436,54 @@
         if (type === 'Note') {
             inputArea.innerHTML = '<textarea id="item-input" placeholder="write your message here..."></textarea>';
         } else if (type === 'Photo') {
-            inputArea.innerHTML = '<input type="text" id="item-input" placeholder="paste an image URL (https://...)">';
+            inputArea.innerHTML = `
+                <input type="text" id="item-input" placeholder="paste an image URL (https://...)">
+                <div style="text-align: center; margin: 15px 0; color: #888; font-size: 0.85rem;">— OR —</div>
+                <input type="file" id="file-input" accept="image/*" style="width: 100%; border: 1px dashed var(--border-color); padding: 10px; background: #fafafa; font-family: inherit;">
+                <p style="font-size: 0.75rem; color: #999; margin-top: 8px;">Select a photo to auto-compress and tuck it inside the link.</p>
+            `;
+
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX_SIZE = 400; 
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('item-input').value = dataUrl;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        } else if (type === 'Song') {
+            inputArea.innerHTML = `
+                <input type="text" id="item-input" placeholder="paste a Spotify link here...">
+                <p style="font-size: 0.75rem; color: #999; margin-top: 8px;">We will automatically create a playable preview widget!</p>
+            `;
+        } else if (type === 'Video') {
+            inputArea.innerHTML = `
+                <input type="text" id="item-input" placeholder="paste a YouTube or video link...">
+            `;
         } else {
             inputArea.innerHTML = `<input type="text" id="item-input" placeholder="paste the ${type.toLowerCase()} link here...">`;
         }
@@ -478,7 +532,6 @@
         packageData.to = document.getElementById('to-input').value || 'someone special';
         packageData.from = document.getElementById('from-input').value || 'a friend';
         
-        // Encode payload
         const payload = btoa(encodeURIComponent(JSON.stringify(packageData)));
         const shareUrl = window.location.origin + window.location.pathname + '#' + payload;
         
@@ -491,7 +544,6 @@
         shareInput.select();
         document.execCommand('copy');
         
-        // Change button text briefly
         const btn = document.querySelector('.btn-main');
         const originalText = btn.innerText;
         btn.innerText = "*** LINK COPIED TO CLIPBOARD ***";
@@ -531,12 +583,55 @@
             div.className = 'goodie-item';
             
             let contentHtml = '';
+            let safeContent = item.content.replace(/"/g, '&quot;');
+
+            // Helper to ensure URLs are valid
+            if (item.type !== 'Note' && !safeContent.startsWith('http') && !safeContent.startsWith('data:')) {
+                safeContent = 'https://' + safeContent;
+            }
+
             if (item.type === 'Note') {
-                contentHtml = item.content.replace(/\n/g, '<br>');
+                contentHtml = safeContent.replace(/\n/g, '<br>');
+            
             } else if (item.type === 'Photo') {
-                contentHtml = `<img src="${item.content}" alt="Included photo" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'">`;
+                contentHtml = `<img src="${safeContent}" alt="Included photo" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Image+Broken+or+Not+Found'">`;
+            
+            } else if (item.type === 'Song') {
+                // If it's a Spotify link, convert it to an embed iframe
+                if (safeContent.includes('spotify.com/track/')) {
+                    // Extract the track ID and strip out any tracking queries (?si=...)
+                    let trackId = safeContent.split('track/')[1].split('?')[0];
+                    contentHtml = `<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/${trackId}" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+                } else {
+                    // Fallback to a standard link if it's Apple Music, YouTube Music, etc.
+                    contentHtml = `<a href="${safeContent}" target="_blank" rel="noopener noreferrer">listen to song →</a>`;
+                }
+            
+            } else if (item.type === 'Video') {
+                // Detect YouTube links and embed them
+                if (safeContent.includes('youtube.com/watch?v=') || safeContent.includes('youtu.be/')) {
+                    let videoId = safeContent.includes('youtu.be/') ? safeContent.split('youtu.be/')[1].split('?')[0] : safeContent.split('v=')[1].split('&')[0];
+                    contentHtml = `<iframe width="100%" height="200" style="border-radius: 4px;" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                } 
+                // Detect direct MP4 links
+                else if (safeContent.toLowerCase().endsWith('.mp4')) {
+                    contentHtml = `<video width="100%" controls style="border-radius: 4px;"><source src="${safeContent}" type="video/mp4"></video>`;
+                } 
+                // Fallback
+                else {
+                    contentHtml = `<a href="${safeContent}" target="_blank" rel="noopener noreferrer">watch video →</a>`;
+                }
+
+            } else if (item.type === 'Voice') {
+                // Detect direct audio files (like if they pasted a link to an mp3 file online)
+                if (safeContent.toLowerCase().endsWith('.mp3') || safeContent.toLowerCase().endsWith('.wav')) {
+                    contentHtml = `<audio controls style="width: 100%;"><source src="${safeContent}"></audio>`;
+                } else {
+                    contentHtml = `<a href="${safeContent}" target="_blank" rel="noopener noreferrer">listen to voice note →</a>`;
+                }
+
             } else {
-                contentHtml = `<a href="${item.content}" target="_blank">open ${item.type.toLowerCase()} link →</a>`;
+                contentHtml = `<a href="${safeContent}" target="_blank" rel="noopener noreferrer">open ${item.type.toLowerCase()} link →</a>`;
             }
             
             div.innerHTML = `<div class="type">${item.type}</div><div>${contentHtml}</div>`;
